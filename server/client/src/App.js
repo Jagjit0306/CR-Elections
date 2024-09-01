@@ -11,7 +11,6 @@ function App() {
     <div
       className='App'
     >
-        hi
         <Routes>
           <Route path='/' element={<Login/>} ></Route>
         </Routes>

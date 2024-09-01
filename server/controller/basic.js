@@ -1,8 +1,6 @@
 const students = require('../models/studentlist')
 const voters = require('../models/voter')
 
-const generateAccessToken = require('../functions/generateAccessToken')
-
 const jwt = require('jsonwebtoken')
 const dotenv = require('dotenv')
 dotenv.config({path: '../.env'})
@@ -51,12 +49,12 @@ async function ValidateToken(req, res) {
 }
 
 async function Greet(req, res) {
-    if(!req.body.rno) res.sendStatus(403)
+    if(!req.query.rno) res.sendStatus(403)
     else {
-        const studentExists = await students.findOne({roll: req.body.rno})
+        const studentExists = await students.findOne({roll: req.query.rno})
         if(!studentExists) res.sendStatus(404)
         else {
-            const alreadyVoted = await voters.findOne({roll: req.body.rno})
+            const alreadyVoted = await voters.findOne({roll: req.query.rno})
             if(alreadyVoted) res.sendStatus(405)
             else {
                 if(studentExists.branch=='ec.24')
