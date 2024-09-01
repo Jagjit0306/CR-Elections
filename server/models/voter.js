@@ -1,8 +1,7 @@
 const mongoose = require('mongoose')
 
 const voterSchema = mongoose.Schema({
-    roll: Number,
-    name: String
+    roll: Number
 })
 
 module.exports = mongoose.model('voters', voterSchema)

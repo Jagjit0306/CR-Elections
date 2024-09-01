@@ -1,4 +1,5 @@
-import { FormControl, FormLabel, Input, Button } from "@chakra-ui/react"
+import { FormControl, FormLabel, Input, Button, useToast } from "@chakra-ui/react"
+
 import { useState } from "react"
 
 function toQuery(jsonValue) {
@@ -10,9 +11,11 @@ function toQuery(jsonValue) {
     jsonValue = jsonValue.replace(/"/g, "")
     jsonValue = jsonValue.replace(/ /g, "+")
     return jsonValue
-  }
+}
 
 export default function Login() {
+    const toast = useToast()
+
     const [pageState, setPageState] = useState(0)
     const [userName, setUserName] = useState()
     const [roll, setRoll] = useState()
@@ -21,6 +24,7 @@ export default function Login() {
     // 2 for already voted
     // 3 for wrong branch
     // 4 for roll number doesnt exist
+    // 5 for email sent
     
     function Init() {
         const [rno, setRno] = useState('')
@@ -78,11 +82,97 @@ export default function Login() {
     }
 
     function Proceed() {
+
+        function EmailForm(){
+            const [email, setEmail] = useState('')
+
+            const verifyEmail = async()=>{
+                if(email.includes('.ec.24@nitj.ac.in')){
+                    try{
+                        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/verEmail`, {
+                            method:'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                email: email,
+                                rno: roll
+                            })
+                        })
+                        if(response.status===200){
+                            setPageState(5)
+                        }
+                        else if(response.status===401){
+                            toast({
+                                title: 'User not found.',
+                                description: "Student info not found.(0)",
+                                status: 'error',
+                                duration: 4000,
+                                isClosable: true,
+                            })
+                        }
+                        else if(response.status===403){
+                            toast({
+                                title: 'Email incorrect.',
+                                description: "Kindly cross-check and enter correct email.",
+                                status: 'error',
+                                duration: 4000,
+                                isClosable: true,
+                            })
+                        }
+                        else if(response.status===404){
+                            toast({
+                                title: 'User not found.',
+                                description: "Student info not found.(1)",
+                                status: 'error',
+                                duration: 4000,
+                                isClosable: true,
+                            })
+                        }
+                    } catch(e) {
+                        toast({
+                            title: 'Error encountered',
+                            description: "There was an issue encountered at our end.",
+                            status: 'error',
+                            duration: 4000,
+                            isClosable: true,
+                        })
+                        console.log(e)}
+                }
+                else {
+                    toast({
+                        title: 'Email format invalid',
+                        description: "Kindly use the correct email.",
+                        status: 'warning',
+                        duration: 4000,
+                        isClosable: true,
+                    })
+                }
+            }
+
+            return(
+                <>
+                <FormControl>
+                    <FormLabel>Enter your college email</FormLabel>
+                    <Input
+                        type="text"
+                        value={email}
+                        placeholder={'johnpork.ec.24@nitj.ac.in'}
+                        id='email'
+                        onChange={(e)=>{setEmail(e.target.value)}}
+                    />
+                    <Button onClick={verifyEmail}>Continue</Button>
+                </FormControl>
+                </>
+            )
+        }
+
         return (
             <>
             Welcome User {userName}
-
+            <br />
             proceed with email verification
+            <EmailForm/>
             </>
         )
     }
@@ -111,12 +201,21 @@ export default function Login() {
         )
     }
 
+    function EmailSent() {
+        return (
+            <>
+            Kindly check your email to vote
+            </>
+        )
+    }
+
     const stateMapper = [
         <Init/>,
         <Proceed/>,
         <AlreadyVoted/>,
         <WrongBranch/>,
-        <InvRNO/>
+        <InvRNO/>,
+        <EmailSent/>
     ]
 
     return (

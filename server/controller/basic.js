@@ -1,50 +1,83 @@
 const students = require('../models/studentlist')
 const voters = require('../models/voter')
+const candidates = require('../models/candidate')
+const otps = require('../models/otp')
 
-const jwt = require('jsonwebtoken')
-const dotenv = require('dotenv')
-dotenv.config({path: '../.env'})
+function gen10dig() {
+    const min = 1000000000; // Minimum 10-digit number (inclusive)
+    const max = 9999999999; // Maximum 10-digit number (inclusive)
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
-async function Token (req, res) {
-    const refreshToken= req.cookies.RT
-    if (refreshToken == null) res.sendStatus(401)
-    const tokenCheck = await refreshTokens.findOne({token:refreshToken})
-    if(tokenCheck) {
-        console.log('Refresh token verified')
-        jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user)=>{
-            if (err) res.sendStatus(403) // token invalid
+async function Vote(req, res) {
+    if(!(req.body.voteM&&req.body.voteF&&req.body.rno)) res.sendStatus(401)
+    else {
+        const user = await students.findOne({roll: req.body.rno})
+        if(user) {
+            const hasVoted = await voters.findOne({roll: req.body.rno})
+            if(hasVoted) res.sendStatus(405)
             else {
-                const accessToken = generateAccessToken({userid: user.userid})
-                res.cookie('AT', accessToken, {
-                    httpOnly: true,
-                    sameSite: 'strict',
-                    secure: 'true',
-                    path: '/'
-                })
-                res.json({status: 'complete'})
+                const McandidateFound = await candidates.findOne({name: req.body.voteM})
+                if(McandidateFound){
+                    McandidateFound.votes += 1
+                    await McandidateFound.save()
+                } else {
+                    candidates.create({
+                        name: req.body.voteM,
+                        votes: 1
+                    })
+                }
+                const FcandidateFound = await candidates.findOne({name: req.body.voteF})
+                if(FcandidateFound){
+                    FcandidateFound.votes += 1
+                    await FcandidateFound.save()
+                } else {
+                    candidates.create({
+                        name: req.body.voteF,
+                        votes: 1
+                    })
+                }
+                const voted = await voters.create({roll: req.body.rno})
+                await otps.findOneAndDelete({roll: req.body.rno})
+                if(voted) res.sendStatus(200)
+                else res.sendStatus(500)
             }
-        })
+        }
+        else res.sendStatus(403)
     }
+} 
+
+async function verOTP(req, res) {
+    if(!(req.query.otp&&req.query.rno)) res.sendStatus(401)
     else {
-        res.sendStatus(403) //token not found in database
+        const validity = await otps.findOne({roll: req.query.rno, otp: req.query.otp})
+        if(!validity) res.sendStatus(404)
+            else res.sendStatus(200)
     }
 }
 
-async function UsernameCheck(req, res) {
-    if(!req.query.username) res.sendStatus(401)
+async function verEmail(req, res) {
+    if(!(req.body.email&&req.body.rno)) res.sendStatus(401)
     else {
-        const duplicateUser = await users.findOne({username: req.query.username})
-        if(duplicateUser) res.json({exists:true})
-        else res.json({exists:false})
-    }
-}
+        const theUser = await students.findOne({roll: Number(req.body.rno)})
+        if(!theUser) res.sendStatus(404)
+        else {
+            const mp = req.body.email.split('.ec.24@nitj.ac.in')
+            if(mp[1]==''&&(mp[0].includes(String(theUser.name[0]).toLowerCase()))){
+                const otp = gen10dig()
+                const dt = new Date( Date.now() + 2*60*60000 ) //link expires after 2 hours
+                await otps.create({
+                    roll: req.body.rno, 
+                    otp: otp, 
+                    expiresAfter: dt})
+                //send email
 
-async function ValidateToken(req, res) {
-    if(!req.cookies.RT) res.sendStatus(401)
-    else {
-        const validity = await refreshTokens.findOne({token: req.cookies.RT})
-        if(!validity) res.json({validity: false})
-        else res.json({validity: true})
+                res.sendStatus(200)
+            }
+            else {
+                res.sendStatus(403)
+            }
+        }
     }
 }
 
@@ -65,4 +98,4 @@ async function Greet(req, res) {
     }
 }
 
-module.exports = { Token, UsernameCheck, ValidateToken, Greet }
+module.exports = { Greet, verEmail, Vote, verOTP }
