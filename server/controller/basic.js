@@ -3,6 +3,8 @@ const voters = require('../models/voter')
 const candidates = require('../models/candidate')
 const otps = require('../models/otp')
 
+const {Mail} = require('../functions/mailer')
+
 function gen10dig() {
     const min = 1000000000; // Minimum 10-digit number (inclusive)
     const max = 9999999999; // Maximum 10-digit number (inclusive)
@@ -17,23 +19,25 @@ async function Vote(req, res) {
             const hasVoted = await voters.findOne({roll: req.body.rno})
             if(hasVoted) res.sendStatus(405)
             else {
-                const McandidateFound = await candidates.findOne({name: req.body.voteM})
+                const McandidateFound = await candidates.findOne({name: req.body.voteM, gender:'M'})
                 if(McandidateFound){
                     McandidateFound.votes += 1
                     await McandidateFound.save()
                 } else {
                     candidates.create({
                         name: req.body.voteM,
+                        gender:'M',
                         votes: 1
                     })
                 }
-                const FcandidateFound = await candidates.findOne({name: req.body.voteF})
+                const FcandidateFound = await candidates.findOne({name: req.body.voteF, gender:'F'})
                 if(FcandidateFound){
                     FcandidateFound.votes += 1
                     await FcandidateFound.save()
                 } else {
                     candidates.create({
                         name: req.body.voteF,
+                        gender:"F",
                         votes: 1
                     })
                 }
@@ -63,14 +67,25 @@ async function verEmail(req, res) {
         if(!theUser) res.sendStatus(404)
         else {
             const mp = req.body.email.split('.ec.24@nitj.ac.in')
-            if(mp[1]==''&&(mp[0].includes(String(theUser.name[0]).toLowerCase()))){
+            if(mp[1]==''&&(mp[0].includes(String(theUser.name.split(' ')[0]).toLowerCase()))){
+                await otps.deleteMany({roll: req.body.rno})
                 const otp = gen10dig()
                 const dt = new Date( Date.now() + 2*60*60000 ) //link expires after 2 hours
                 await otps.create({
                     roll: req.body.rno, 
                     otp: otp, 
                     expiresAfter: dt})
-                //send email
+                const linkString = `http://${req.headers.host}/vote?rno=${req.body.rno}&key=${otp}`
+                {
+                    const mailConfig = {
+                        email: req.body.email,
+                        subject: 'Vote for ECE\'28 CR !',
+                        path: 'verifOtp.ejs',
+                        config: {OTP: linkString}
+                    }
+                    const mailStatus = await Mail(mailConfig)
+                    if(mailStatus==true) {}
+                }
 
                 res.sendStatus(200)
             }

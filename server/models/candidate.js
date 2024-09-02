@@ -5,6 +5,7 @@ const candidateSchema = mongoose.Schema({
         type:String,
         unique: true
     },
+    gender:String,
     votes: Number
 })
 

@@ -1,6 +1,9 @@
-import { FormControl, FormLabel, Input, Button, useToast } from "@chakra-ui/react"
-
+import { FormControl, Spinner, Text, FormLabel, Input, Button, useToast, VStack } from "@chakra-ui/react"
 import { useState } from "react"
+import { FaArrowRight } from "react-icons/fa"
+
+import Hero from "../components/hero"
+import Container from "../components/container"
 
 function toQuery(jsonValue) {
     jsonValue = JSON.stringify(jsonValue)
@@ -65,17 +68,19 @@ export default function Login() {
         
         return (
             <>
-                ENTER YOUR ROLL NUMBER
                 <FormControl>
-                    <FormLabel>Enter your roll number</FormLabel>
-                    <Input 
-                        type="number"
-                        value={rno}
-                        onChange={(e)=>{setRno(e.target.value)}}
-                        id="rno"
-                        placeholder="241040XX"
-                    />
-                    <Button onClick={getStatus} >Continue</Button>
+                    <VStack>
+                        <FormLabel>Enter your roll number</FormLabel>
+                        <Input 
+                            type="number"
+                            value={rno}
+                            style={{textAlign:'center'}}
+                            onChange={(e)=>{setRno(e.target.value)}}
+                            id="rno"
+                            placeholder="241040XX"
+                        />
+                        <Button colorScheme="teal" isDisabled={!rno} onClick={getStatus} rightIcon={<FaArrowRight/>} >Continue</Button>
+                    </VStack>
                 </FormControl>
             </>
         )
@@ -85,9 +90,11 @@ export default function Login() {
 
         function EmailForm(){
             const [email, setEmail] = useState('')
+            const [buttonState, setButtonState] = useState(true)
 
             const verifyEmail = async()=>{
                 if(email.includes('.ec.24@nitj.ac.in')){
+                    setButtonState(false)
                     try{
                         const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/verEmail`, {
                             method:'POST',
@@ -103,6 +110,7 @@ export default function Login() {
                             setPageState(5)
                         }
                         else if(response.status===401){
+                            setButtonState(true)
                             toast({
                                 title: 'User not found.',
                                 description: "Student info not found.(0)",
@@ -112,6 +120,7 @@ export default function Login() {
                             })
                         }
                         else if(response.status===403){
+                            setButtonState(true)
                             toast({
                                 title: 'Email incorrect.',
                                 description: "Kindly cross-check and enter correct email.",
@@ -121,6 +130,7 @@ export default function Login() {
                             })
                         }
                         else if(response.status===404){
+                            setButtonState(true)
                             toast({
                                 title: 'User not found.',
                                 description: "Student info not found.(1)",
@@ -130,6 +140,7 @@ export default function Login() {
                             })
                         }
                     } catch(e) {
+                        setButtonState(true)
                         toast({
                             title: 'Error encountered',
                             description: "There was an issue encountered at our end.",
@@ -152,26 +163,57 @@ export default function Login() {
 
             return(
                 <>
-                <FormControl>
-                    <FormLabel>Enter your college email</FormLabel>
-                    <Input
-                        type="text"
-                        value={email}
-                        placeholder={'johnpork.ec.24@nitj.ac.in'}
-                        id='email'
-                        onChange={(e)=>{setEmail(e.target.value)}}
-                    />
-                    <Button onClick={verifyEmail}>Continue</Button>
+                <FormControl style={{
+                    // color:'black',
+                    // border:'4px solid lightgray',
+                    // backgroundColor:'rgba(181, 215, 228, 0.8)',
+                    // borderRadius: '15px',
+                    // padding:'20px'
+                }}>
+                    <VStack>
+                        <FormLabel>Enter your college email</FormLabel>
+                        <Input
+                            type="text"
+                            value={email}
+                            style={{textAlign:'center'}}
+                            placeholder={'johndoe.ec.24@nitj.ac.in'}
+                            id='email'  
+                            onChange={(e)=>{setEmail(e.target.value)}}
+                        />
+                        <Button colorScheme="teal" isDisabled={!email||(!buttonState)} onClick={verifyEmail} rightIcon={buttonState?<FaArrowRight/>:<Spinner/>}>Continue</Button>
+                    </VStack>
                 </FormControl>
                 </>
             )
         }
 
+        function capitalizeFullName(fullName) {
+            const nameParts = fullName.split(' ');
+          
+            // Capitalize the first letter of each part
+            const formattedNameParts = nameParts.map((part) => {
+              return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
+            });
+          
+            // Join the formatted parts back into the full name
+            const formattedFullName = formattedNameParts.join(' ');
+          
+            return formattedFullName;
+        }          
+
         return (
             <>
-            Welcome User {userName}
-            <br />
-            proceed with email verification
+            <Text style={{
+                textAlign:'center',
+                fontWeight:'700',
+                fontSize:'2rem',
+                color:'lightgray'
+            }}>
+                Heyy {capitalizeFullName(userName)} !
+            </Text>
+            <em style={{color:"darkgray"}}>
+                proceed with email verification
+            </em>
             <EmailForm/>
             </>
         )
@@ -180,7 +222,8 @@ export default function Login() {
     function AlreadyVoted() {
         return (
             <>
-            Already Voted bro
+            <Text>This Student has already voted for CR Elections...</Text>
+            <Button colorScheme="blue" onClick={()=>{setPageState(0)}}>Go Back</Button>
             </>
         )
     }
@@ -188,15 +231,17 @@ export default function Login() {
     function WrongBranch() {
         return (
             <>
-            Only ECE peeps allowed, cope
+            <Text>Only ECE 1st year is allowed to vote for these elections...</Text>
+            <Button colorScheme="blue" onClick={()=>{setPageState(0)}}>Go Back</Button>
             </>
         )
     }
-
+    
     function InvRNO() {
         return (
             <>
-            Roll number invalid
+            <Text>Roll number not recognized...</Text>
+            <Button colorScheme="blue" onClick={()=>{setPageState(0)}}>Go Back</Button>
             </>
         )
     }
@@ -204,7 +249,13 @@ export default function Login() {
     function EmailSent() {
         return (
             <>
-            Kindly check your email to vote
+            <Text style={{textAlign:"center"}}>
+                One-time use email sent...
+                <br /><br />
+                Click the link in the email to cast your vote.
+                <br /><br />
+                Kindly check your inbox !
+            </Text>
             </>
         )
     }
@@ -219,8 +270,9 @@ export default function Login() {
     ]
 
     return (
-        <>
+        <Container>
+            <Hero/>
             {stateMapper[pageState]}
-        </>
+        </Container>
     )
 }

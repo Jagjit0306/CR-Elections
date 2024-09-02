@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react"
-import { Button, useToast } from "@chakra-ui/react"
+import { Box, Button, useToast, Text, VStack, HStack, Spinner } from "@chakra-ui/react"
+import { FaCheck, FaArrowRight } from 'react-icons/fa'
+
+import Container from "../components/container"
+import Hero from "../components/hero"
 
 function giveQuery(p) {
+    if(!window.location.search) return false
     const queries = window.location.search.split('?')[1].split('&')
     const querieSet = {}
     queries.forEach((querie)=>{
@@ -25,9 +30,12 @@ function toQuery(jsonValue) {
 
 export default function Vote() {
     const toast = useToast()
-    const [rno, setRno] = useState(giveQuery('rno'))
-    const [otp, setOtp] = useState(giveQuery('key'))
-    // console.log("Rno is", rno)
+    const [rno, setRno] = useState(giveQuery('rno')||'')
+    const [otp, setOtp] = useState(giveQuery('key')||'')
+
+    useEffect(()=>{
+        if(!(giveQuery('rno')&&giveQuery('key'))) setPageState(3)
+    },[])
 
     const [pageState, setPageState] = useState(2)
     // 0 for voting page
@@ -36,10 +44,13 @@ export default function Vote() {
     // 3 invalid creds
 
     function CastVote(){
-        const [voteM, setVoteM] = useState('shanu')
-        const [voteF, setVoteF] = useState('bhanu')
+        const [buttonState, setButtonState] = useState(true)
+
+        const [voteM, setVoteM] = useState()
+        const [voteF, setVoteF] = useState()
         const giveVote = async()=>{
             if(voteM&&voteF){
+                setButtonState(false)
                 try{
                     const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/vote`, {
                         method: 'POST',
@@ -54,6 +65,7 @@ export default function Vote() {
                         })
                     })
                     if(response.status===401){
+                        setButtonState(true)
                         toast({
                             title: 'Error encountered.',
                             description: "There was an error encountered while casting your vote.",
@@ -63,6 +75,7 @@ export default function Vote() {
                         })
                     }
                     else if(response.status===403){
+                        setButtonState(true)
                         toast({
                             title: 'Unauthorized.',
                             description: "Credentials did not match.",
@@ -72,6 +85,7 @@ export default function Vote() {
                         })
                     }
                     else if(response.status===405){
+                        setButtonState(true)
                         toast({
                             title: 'Vote already casted !',
                             description: "This student has already casted their vote.",
@@ -81,6 +95,7 @@ export default function Vote() {
                         })
                     }
                     else if(response.status===500){
+                        setButtonState(true)
                         toast({
                             title: 'Error encountered.',
                             description: "There was an error encountered while casting your vote.",
@@ -100,6 +115,7 @@ export default function Vote() {
                         setPageState(1)
                     }
                 } catch(e){
+                    setButtonState(true)
                     toast({
                         title: 'Error encountered.',
                         description: "There was an error encountered at our end.",
@@ -119,20 +135,63 @@ export default function Vote() {
             }
         }
 
+        function VoterCards(props) {
+            function isSelected(){
+                if(props.male){
+                    if(voteM === props.name) return true
+                    else return false
+                } else {
+                    if(voteF === props.name) return true
+                    else return false
+                }
+            }
+            return (
+                <Box 
+                onClick={()=>{
+                    if(props.male) setVoteM(props.name)
+                    else setVoteF(props.name)
+                }}
+                style={{backgroundColor:props.male?'#9fe2bf':'#ffd1dc', color:'black', padding:'15px', borderRadius:"10px",
+                    border:isSelected()?'4px solid cyan':'4px solid white', cursor:'pointer'
+                }}>
+                    <Text style={{fontWeight:'600', color:"rgba(0,0,0,0.7)"}}>
+                    {props.name}
+                    </Text>
+                </Box>
+            )
+        }
+
         return(
             <>
+            <Text style={{fontWeight:'600', fontSize:"1.5rem"}}>
             Give your vote
+            </Text>
+            <VStack style={{border:"2px solid white", padding:'15px', borderRadius:"15px"}}>
+                <Text>Boy CR</Text>
+                <HStack>
+                    <VoterCards name='B1' male/>
+                    <VoterCards name='B2' male/>
+                </HStack>
+                <Text>Girl CR</Text>
+                <HStack>
+                    <VoterCards name='G1'/>
+                    <VoterCards name='G2'/>
+                </HStack>
+            </VStack>
             <br />
-            <Button isDisabled={!(voteF&&voteM)} onClick={giveVote}>Submit</Button>
+            <Button isDisabled={!(voteF&&voteM)||!(buttonState)} colorScheme="blue" onClick={giveVote} rightIcon={buttonState?<FaArrowRight/>:<Spinner/>}>Submit</Button>
             </>
         )
     }
 
     function ThankYou(){
         return(
-            <>
-            Vote submitted
-            </>
+            <HStack>
+                <Text style={{fontWeight:'500', color:'rgba(256,256,256,0.8)'}}>
+                VOTE SUBMITTED
+                </Text>
+                <FaCheck color='limegreen'/>
+            </HStack>
         )
     }
 
@@ -185,16 +244,21 @@ export default function Vote() {
         })
         
         return (
-            <>
-            Checking OTP
-            </>
+            <Spinner size='xl'/>
         )
     }
 
     function INVCred() {
         return (
             <>
-            Invalid Credentials
+            <Text style={{textDecoration:"underline", textDecorationColor:"red"}}>
+                Invalid Credentials
+            </Text>
+            <Text color={'gray'}>
+                <em>
+                The link you followed is either invalid or expired
+                </em>
+            </Text>
             </>
         )
     }
@@ -207,10 +271,10 @@ export default function Vote() {
     ]
 
     return (
-        <>
-        VOTING PAGE
+        <Container>
+        <Hero/>
         <br />
         {stateMapper[pageState]}
-        </>
+        </Container>
     )
 }
