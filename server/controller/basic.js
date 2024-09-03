@@ -113,4 +113,14 @@ async function Greet(req, res) {
     }
 }
 
-module.exports = { Greet, verEmail, Vote, verOTP }
+async function Result(req, res) {
+    const results = await candidates.find()
+    if(results) res.json({data: results})
+        else res.sendStatus(500)
+}
+
+function LiveTime(req, res) {
+    res.json({time: Date.now()})
+}
+
+module.exports = { Greet, verEmail, Vote, verOTP, Result, LiveTime }

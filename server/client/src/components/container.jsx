@@ -1,18 +1,47 @@
-import { Center, Heading, VStack, Text } from "@chakra-ui/react";
+import { Center, Heading, VStack, HStack, Text, Box, useToast } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { FaGithub } from "react-icons/fa";
+
+import Hero from './hero'
 
 export default function Container(props) {
+    const toast = useToast()
     const [pageState, setPageState] = useState(true)
+    let lower = 1725517800000 //set upper and lower time in ms since unix epoch https://currentmillis.com/
+    let upper = 1725561000000
 
     useEffect(()=>{
-        // set time limit and set the pagestate to false then
-        let lower //set upper and lower time in ms since unix epoch https://currentmillis.com/
-        let upper
-        if(Date.now()>lower && Date.now()<upper){
-            setPageState(false)
+        const fn = async()=>{
+            try{
+                const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/time`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                if(response.status===200){
+                    const data = await response.json()
+                    if(data){
+                        if(data.time>lower && data.time<upper){
+                            setPageState(false)
+                        }
+                    }
+                }
+            } catch(e){
+                toast({
+                    title: 'Error encountered.',
+                    description: "There was an error encountered while communicating with server.",
+                    status: 'error',
+                    duration: 4000,
+                    isClosable: true,
+                })
+            }
         }
+        fn()
+        
         setPageState(false) //remove this
-    },[])
+    })
 
     function Wait() {
         return(
@@ -29,18 +58,95 @@ export default function Container(props) {
         )
     }
 
+    function ResultHandler() {
+        const [resultState, setResultState] = useState(false)
+
+        useEffect(()=>{
+            const fn = async()=>{
+                try{
+                    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/time`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    })
+                    if(response.status===200){
+                        const data = await response.json()
+                        if(data){
+                            if(data.time>upper){
+                                setResultState(true)
+                            }
+                        }
+                    }
+                } catch(e){
+                    toast({
+                        title: 'Error encountered.',
+                        description: "There was an error encountered while communicating with server.",
+                        status: 'error',
+                        duration: 4000,
+                        isClosable: true,
+                    })
+                }
+            }
+            fn()
+
+            setResultState(true) //comment this later
+        })
+
+        return (
+            <>
+            {
+                resultState?props.children:
+                <>
+                <Heading>
+                    Results not announced
+                </Heading>
+                <Text color='gray'>
+                    <em>
+                        Kindly wait till the result declaration date...
+                    </em>
+                </Text>
+                </>
+            }
+            </>
+        )
+    }
+
     return (
+        <>
         <Center style={{
-            height:"100%",
+            minHeight:"100svh",
             backgroundColor: 'black',
             color: 'white',
-            padding:'15px'
+            // padding:'15px'
         }}>
-            <VStack style={{alignItems:"center", justifyContent: 'center', gap: '15px'}}>
-                {
-                    pageState ? <Wait/> : props.children
-                }
+            <VStack justifyContent={'space-between'} padding={'15px'}>
+                <Box style={{
+                    alignItems:"center", justifyContent: 'center', 
+                    gap: '15px', overflowY:"auto", boxSizing:"border-box", minHeight:"90svh",
+                    display:"flex", flexDirection:"column"}}>
+                    <Hero/>
+                    {
+                        props.result?
+                        <ResultHandler/>
+                        :(pageState ? <Wait/> : props.children)
+                    }
+                </Box>
+                <Link to='https://www.github.com/Jagjit0306' style={{width:'100%', color:"gray"}}>
+                    <HStack justifyContent={'center'}>
+                        <Text>
+                            Developed by 
+                        </Text>
+                        <HStack justifyContent={'space-evenly'}>
+                            <Text>
+                            Jagjit0306 
+                            </Text>
+                            <FaGithub/>
+                        </HStack>
+                    </HStack>
+                </Link>
             </VStack>
         </Center>
+        </>
     )
 }

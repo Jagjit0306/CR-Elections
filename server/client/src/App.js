@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 
 import Login from './pages/login';
 import Vote from './pages/vote';
+import Result from './pages/result';
 
 function App() {
 
@@ -19,11 +20,12 @@ function App() {
     <div
       className='App'
     >
-        <Routes>
-          <Route path='/' element={<Login/>} ></Route>
-          <Route path='/vote' element={<Vote/>} ></Route>
-          <Route path='*' element={<NF/>} />
-        </Routes>
+      <Routes>
+        <Route path='/' element={<Login/>} />
+        <Route path='/vote' element={<Vote/>} />
+        <Route path='/result' element={<Result/>} />
+        <Route path='*' element={<NF/>} />
+      </Routes>
     </div>
   );
 }

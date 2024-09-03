@@ -2,7 +2,6 @@ import { FormControl, Spinner, Text, FormLabel, Input, Button, useToast, VStack 
 import { useState } from "react"
 import { FaArrowRight } from "react-icons/fa"
 
-import Hero from "../components/hero"
 import Container from "../components/container"
 
 function toQuery(jsonValue) {
@@ -271,7 +270,6 @@ export default function Login() {
 
     return (
         <Container>
-            <Hero/>
             {stateMapper[pageState]}
         </Container>
     )

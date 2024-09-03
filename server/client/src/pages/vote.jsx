@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react"
 import { Box, Button, useToast, Text, VStack, HStack, Spinner } from "@chakra-ui/react"
-import { FaCheck, FaArrowRight } from 'react-icons/fa'
+import { FaCheck, FaHeart } from 'react-icons/fa'
+
+import placeholder from '../media/placeholder.png'
 
 import Container from "../components/container"
-import Hero from "../components/hero"
 
 function giveQuery(p) {
     if(!window.location.search) return false
@@ -146,18 +147,27 @@ export default function Vote() {
                 }
             }
             return (
-                <Box 
+                <VStack 
                 onClick={()=>{
                     if(props.male) setVoteM(props.name)
                     else setVoteF(props.name)
                 }}
-                style={{backgroundColor:props.male?'#9fe2bf':'#ffd1dc', color:'black', padding:'15px', borderRadius:"10px",
-                    border:isSelected()?'4px solid cyan':'4px solid white', cursor:'pointer'
+                style={{backgroundColor:props.male?'#9fe2bf':'#ffd1dc', color:'black', padding:'5px', 
+                    borderRadius:"15px", margin:'10px',
+                    border:isSelected()?'3px solid red':('3px solid '+(props.male?'#9fe2bf':'#ffd1dc')), 
+                    cursor:'pointer',
+                    transform:isSelected()?'scale(1.1)':''
                 }}>
+                    <img src={props.pic||placeholder} alt="avatar" 
+                    style={{
+                        height:'150px',
+                        borderRadius:'15px',
+                        border:"1px solid lightgray"
+                    }} />
                     <Text style={{fontWeight:'600', color:"rgba(0,0,0,0.7)"}}>
                     {props.name}
                     </Text>
-                </Box>
+                </VStack>
             )
         }
 
@@ -166,20 +176,27 @@ export default function Vote() {
             <Text style={{fontWeight:'600', fontSize:"1.5rem"}}>
             Give your vote
             </Text>
+            <em style={{color:"gray"}}>votes will remain anonymous</em>
             <VStack style={{border:"2px solid white", padding:'15px', borderRadius:"15px"}}>
-                <Text>Boy CR</Text>
-                <HStack>
+                <Text style={{fontWeight:'800', color:"rgba(256,256,256,0.7)"}}>BOY CR</Text>
+                <HStack style={{flexWrap:'wrap', gap:'20px', justifyContent:'center'}}>
                     <VoterCards name='B1' male/>
                     <VoterCards name='B2' male/>
                 </HStack>
-                <Text>Girl CR</Text>
-                <HStack>
+                <Text style={{fontWeight:'800', color:"rgba(256,256,256,0.7)"}}>GIRL CR</Text>
+                <HStack style={{flexWrap:'wrap', gap:'20px', justifyContent:'center'}}>
                     <VoterCards name='G1'/>
                     <VoterCards name='G2'/>
                 </HStack>
             </VStack>
             <br />
-            <Button isDisabled={!(voteF&&voteM)||!(buttonState)} colorScheme="blue" onClick={giveVote} rightIcon={buttonState?<FaArrowRight/>:<Spinner/>}>Submit</Button>
+            {
+                !(voteM&&voteF)?'':
+                <Text>
+                    Vote for {voteM} and {voteF} ?
+                </Text>
+            }
+            <Button isDisabled={!(voteF&&voteM)||!(buttonState)} colorScheme="blue" onClick={giveVote} rightIcon={buttonState?<FaHeart color="red"/>:<Spinner/>}>Vote</Button>
             </>
         )
     }
@@ -252,11 +269,11 @@ export default function Vote() {
         return (
             <>
             <Text style={{textDecoration:"underline", textDecorationColor:"red"}}>
-                Invalid Credentials
+                Broken Link
             </Text>
             <Text color={'gray'}>
                 <em>
-                The link you followed is either invalid or expired
+                The link you followed is either invalid or has expired...
                 </em>
             </Text>
             </>
@@ -272,7 +289,6 @@ export default function Vote() {
 
     return (
         <Container>
-        <Hero/>
         <br />
         {stateMapper[pageState]}
         </Container>
