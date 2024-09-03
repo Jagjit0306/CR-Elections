@@ -1,4 +1,4 @@
-import { Center, Heading, VStack, HStack, Text, Box, useToast } from "@chakra-ui/react";
+import { Center, Heading, VStack, HStack, Text, Box, useToast, Button } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FaGithub } from "react-icons/fa";
@@ -54,6 +54,9 @@ export default function Container(props) {
                     Voting has either closed or is yet to begin...
                 </em>
             </Text>
+            <Link to='/result'>
+            <Button colorScheme="green">View voting result</Button>
+            </Link>
             </>
         )
     }
@@ -106,6 +109,9 @@ export default function Container(props) {
                         Kindly wait till the result declaration date...
                     </em>
                 </Text>
+                <Link to='/'>
+                <Button colorScheme="green">Vote for CR !</Button>
+                </Link>
                 </>
             }
             </>

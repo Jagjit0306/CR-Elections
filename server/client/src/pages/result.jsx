@@ -56,23 +56,29 @@ export default function Result() {
     return (
         <Container result>
             <Heading>RESULT</Heading>
-            <Text textDecoration={'underline'} textDecorationColor={'#9fe2bf'}>
-                BOY CR VOTES
-            </Text>
             {
-                !resultData?<Spinner/>:
-                resultData.filter(r=> r.gender==='M').map(r=>(
-                    <Card data={r} />
-                ))
-            }
-            <Text textDecoration={'underline'} textDecorationColor={'#ffd1dc'}>
-                GIRL CR VOTES
-            </Text>
-            {
-                !resultData?<Spinner/>:
-                resultData.filter(r=> r.gender==='F').map(r=>(
-                    <Card data={r} />
-                ))
+                !(resultData&&resultData.length)?
+                <Text>No votes found...</Text>:
+                <>
+                <Text textDecoration={'underline'} fontWeight={'600'} color={'#9fe2bf'}>
+                    BOY CR VOTES
+                </Text>
+                {
+                    !resultData?<Spinner/>:
+                    resultData.filter(r=> r.gender==='M').map(r=>(
+                        <Card data={r} />
+                    ))
+                }
+                <Text textDecoration={'underline'} fontWeight={'600'} color={'#ffd1dc'}>
+                    GIRL CR VOTES
+                </Text>
+                {
+                    !resultData?<Spinner/>:
+                    resultData.filter(r=> r.gender==='F').map(r=>(
+                        <Card data={r} />
+                    ))
+                }
+                </>
             }
         </Container>
     )

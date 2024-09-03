@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
-import { Box, Button, useToast, Text, VStack, HStack, Spinner } from "@chakra-ui/react"
+import { Button, useToast, Text, VStack, HStack, Spinner } from "@chakra-ui/react"
+import { Link } from "react-router-dom"
 import { FaCheck, FaHeart } from 'react-icons/fa'
 
 import placeholder from '../media/placeholder.png'
@@ -276,6 +277,9 @@ export default function Vote() {
                 The link you followed is either invalid or has expired...
                 </em>
             </Text>
+            <Link to='/'>
+            <Button colorScheme="orange">Get a new Link</Button>
+            </Link>
             </>
         )
     }
