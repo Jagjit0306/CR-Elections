@@ -69,7 +69,7 @@ export default function Result() {
                         <Card data={r} />
                     ))
                 }
-                <Text textDecoration={'underline'} fontWeight={'600'} color={'#ffd1dc'}>
+                {/* <Text textDecoration={'underline'} fontWeight={'600'} color={'#ffd1dc'}>
                     GIRL CR VOTES
                 </Text>
                 {
@@ -77,7 +77,7 @@ export default function Result() {
                     resultData.filter(r=> r.gender==='F').map(r=>(
                         <Card data={r} />
                     ))
-                }
+                } */}
                 </>
             }
         </Container>

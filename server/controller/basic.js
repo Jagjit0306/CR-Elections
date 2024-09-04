@@ -11,10 +11,21 @@ function gen10dig() {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+const VLSI = [
+    24118001,
+    24118002,
+    24118003,
+    24118004,
+    24118005,
+    24118006,
+    24118007,
+    24118008
+]
+
 async function Vote(req, res) {
     if(!(req.body.voteM&&req.body.voteF&&req.body.rno)) res.sendStatus(401)
     else {
-        const user = await students.findOne({roll: req.body.rno})
+        const user = await otps.findOne({roll: req.body.rno, otp:req.body.otp})
         if(user) {
             const hasVoted = await voters.findOne({roll: req.body.rno})
             if(hasVoted) res.sendStatus(405)
@@ -61,12 +72,21 @@ async function verOTP(req, res) {
 }
 
 async function verEmail(req, res) {
+
+    function mailSplitter(m) {
+        if(VLSI.includes(Number(req.body.rno))){
+            return m.split('.vl.24@nitj.ac.in')
+        } else  {
+            return m.split('.ec.24@nitj.ac.in')
+        }
+    }
+
     if(!(req.body.email&&req.body.rno)) res.sendStatus(401)
     else {
         const theUser = await students.findOne({roll: Number(req.body.rno)})
         if(!theUser) res.sendStatus(404)
         else {
-            const mp = req.body.email.split('.ec.24@nitj.ac.in')
+            const mp = mailSplitter(req.body.email)
             if(mp[1]==''&&(mp[0].includes(String(theUser.name.split(' ')[0]).toLowerCase()))){
                 await otps.deleteMany({roll: req.body.rno})
                 const otp = gen10dig()
@@ -105,7 +125,7 @@ async function Greet(req, res) {
             const alreadyVoted = await voters.findOne({roll: req.query.rno})
             if(alreadyVoted) res.sendStatus(405)
             else {
-                if(studentExists.branch=='ec.24')
+                if(studentExists.branch=='ec.24' || (studentExists.branch=='vl.24'&&(VLSI.includes(Number(req.query.rno)))))
                     res.json({name: studentExists.name})
                 else res.sendStatus(401)
             }

@@ -104,7 +104,7 @@ export default function Login() {
                             style={{textAlign:'center'}}
                             onChange={(e)=>{setRno(e.target.value)}}
                             id="rno"
-                            placeholder="241040XX"
+                            placeholder="241040XX or 2411800X"
                         />
                         <Button colorScheme="teal" isDisabled={!rno} onClick={getStatus} rightIcon={<FaArrowRight/>} >Continue</Button>
                     </VStack>
@@ -115,12 +115,24 @@ export default function Login() {
 
     function Proceed() {
 
+        const VLSI = [
+            24118001,
+            24118002,
+            24118003,
+            24118004,
+            24118005,
+            24118006,
+            24118007,
+            24118008
+        ]
+
         function EmailForm(){
             const [email, setEmail] = useState('')
             const [buttonState, setButtonState] = useState(true)
 
             const verifyEmail = async()=>{
-                if(email.includes('.ec.24@nitj.ac.in')){
+                if(email.includes('.ec.24@nitj.ac.in')||
+                (VLSI.includes(Number(roll))&&email.includes('.vl.24@nitj.ac.in'))){
                     setButtonState(false)
                     try{
                         const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/verEmail`, {

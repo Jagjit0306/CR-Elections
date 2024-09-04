@@ -4,6 +4,9 @@ import { Link } from "react-router-dom"
 import { FaCheck, FaHeart } from 'react-icons/fa'
 
 import placeholder from '../media/placeholder.png'
+import daksh from '../media/daksh.png'
+import krish from '../media/krish.png'
+import jasndeep from '../media/jasndeep.png'
 
 import Container from "../components/container"
 
@@ -49,7 +52,7 @@ export default function Vote() {
         const [buttonState, setButtonState] = useState(true)
 
         const [voteM, setVoteM] = useState()
-        const [voteF, setVoteF] = useState()
+        const [voteF, setVoteF] = useState('Dummy')
         const giveVote = async()=>{
             if(voteM&&voteF){
                 setButtonState(false)
@@ -162,9 +165,8 @@ export default function Vote() {
                 }}>
                     <img src={props.pic||placeholder} alt="avatar" 
                     style={{
-                        height:'150px',
-                        borderRadius:'15px 15px 0px 0px',
-                        border:"1px solid lightgray"
+                        height:'170px',
+                        borderRadius:'12px 12px 0px 0px',
                     }} />
                     <Text style={{fontWeight:'600', color:"rgba(0,0,0,0.7)"}}>
                     {props.name}
@@ -182,20 +184,21 @@ export default function Vote() {
             <VStack style={{border:"2px solid white", padding:'15px', borderRadius:"15px"}}>
                 <Text style={{fontWeight:'800', color:"rgba(256,256,256,0.7)"}}>BOY CR</Text>
                 <HStack style={{flexWrap:'wrap', gap:'20px', justifyContent:'center'}}>
-                    <VoterCards name='B1' male/>
-                    <VoterCards name='B2' male/>
-                </HStack>
-                <Text style={{fontWeight:'800', color:"rgba(256,256,256,0.7)"}}>GIRL CR</Text>
-                <HStack style={{flexWrap:'wrap', gap:'20px', justifyContent:'center'}}>
-                    <VoterCards name='G1'/>
-                    <VoterCards name='G2'/>
+                    <VoterCards name='Daksh Jangir' pic={daksh} male/>
+                    <VoterCards name='Jasndeep Singh' pic={jasndeep} male/>
+                    <VoterCards name='Krish Negi' pic={krish} male/>
                 </HStack>
             </VStack>
+            {/* <Text style={{fontWeight:'800', color:"rgba(256,256,256,0.7)"}}>GIRL CR</Text>
+            <HStack style={{flexWrap:'wrap', gap:'20px', justifyContent:'center'}}>
+                <VoterCards name='G1'/>
+                <VoterCards name='G2'/>
+            </HStack> */}
             <br />
             {
                 !(voteM&&voteF)?'':
                 <Text>
-                    Vote for {voteM} and {voteF} ?
+                    Vote for {voteM} ?
                 </Text>
             }
             <Button isDisabled={!(voteF&&voteM)||!(buttonState)} colorScheme="blue" onClick={giveVote} rightIcon={buttonState?<FaHeart color="red"/>:<Spinner/>}>Vote</Button>

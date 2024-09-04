@@ -8,7 +8,8 @@ import Hero from './hero'
 export default function Container(props) {
     const toast = useToast()
     const [pageState, setPageState] = useState(true)
-    let lower = 1725517800000 //set upper and lower time in ms since unix epoch https://currentmillis.com/
+    const [ended, setEnded] = useState(false)
+    let lower = 1725539400000 //set upper and lower time in ms since unix epoch https://currentmillis.com/
     let upper = 1725561000000
 
     useEffect(()=>{
@@ -26,6 +27,7 @@ export default function Container(props) {
                         if(data.time>lower && data.time<upper){
                             setPageState(false)
                         }
+                        if(data.time>upper) setEnded(true)
                     }
                 }
             } catch(e){
@@ -40,7 +42,7 @@ export default function Container(props) {
         }
         fn()
         
-        setPageState(false) //remove this
+        // setPageState(false) //remove this
     })
 
     function Wait() {
@@ -51,12 +53,20 @@ export default function Container(props) {
             </Heading>
             <Text color='gray'>
                 <em>
-                    Voting has either closed or is yet to begin...
+                    Voting 
+                    {
+                        ended?
+                        ' has closed'
+                        :
+                        ' is yet to begin...'
+                    }
                 </em>
             </Text>
-            <Link to='/result'>
-            <Button colorScheme="green">View voting result</Button>
-            </Link>
+            {!ended?'':
+                <Link to='/result'>
+                <Button colorScheme="green">View voting result</Button>
+                </Link>
+            }
             </>
         )
     }
@@ -93,7 +103,7 @@ export default function Container(props) {
             }
             fn()
 
-            setResultState(true) //comment this later
+            // setResultState(true) //comment this later
         })
 
         return (
