@@ -9,7 +9,7 @@ body {
 
 .mainContainer {
   box-sizing: border-box;
-  height: 100vh;
+  height: 100svh;
   display:flex;
   flex-direction: column;
   /* flex-flow:column; */ /* try this if things go bad */

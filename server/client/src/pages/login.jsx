@@ -40,15 +40,43 @@ export default function Login() {
                 })
                 if(response.status===403){ //rno not sent
                     // bro stop erring
+                    toast({
+                        title: 'Error encountered !',
+                        description: "Unknown error encountered.",
+                        status: 'error',
+                        duration: 4000,
+                        isClosable: true,
+                    })
                 }
                 else if(response.status===404){ //roll number doesnt exist
-                    setPageState(4)
+                    toast({
+                        title: 'Roll number not recognized !',
+                        description: "Please enter 1st year roll number only.",
+                        status: 'warning',
+                        duration: 4000,
+                        isClosable: true,
+                    })
+                    // setPageState(4)
                 }
                 else if(response.status===405){ //already voted
-                    setPageState(2)
+                    toast({
+                        title: 'Already voted.',
+                        description: "Each student is only allowed to vote once.",
+                        status: 'warning',
+                        duration: 4000,
+                        isClosable: true,
+                    })
+                    // setPageState(2)
                 }
                 else if(response.status===401){ //wrong branch
-                    setPageState(3)
+                    // setPageState(3)
+                    toast({
+                        title: 'Only ECE allowed',
+                        description: "Only ECE first year is allowed to vote.",
+                        status: 'warning',
+                        duration: 4000,
+                        isClosable: true,
+                    })
                 }
                 else if(response.status===200){
                     const data = await response.json()

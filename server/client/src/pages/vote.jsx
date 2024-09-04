@@ -153,16 +153,17 @@ export default function Vote() {
                     if(props.male) setVoteM(props.name)
                     else setVoteF(props.name)
                 }}
-                style={{backgroundColor:props.male?'#9fe2bf':'#ffd1dc', color:'black', padding:'5px', 
-                    borderRadius:"15px", margin:'10px',
-                    border:isSelected()?'3px solid red':('3px solid '+(props.male?'#9fe2bf':'#ffd1dc')), 
+                style={{backgroundColor:props.male?'#9fe2bf':'#ffd1dc', color:'black', padding:'0px 0px 5px 0px', 
+                    borderRadius:"15px", 
+                    margin:'10px',
+                    border:isSelected()?'3px solid red':('3px solid rgba(0,0,0)'), 
                     cursor:'pointer',
                     transform:isSelected()?'scale(1.1)':''
                 }}>
                     <img src={props.pic||placeholder} alt="avatar" 
                     style={{
                         height:'150px',
-                        borderRadius:'15px',
+                        borderRadius:'15px 15px 0px 0px',
                         border:"1px solid lightgray"
                     }} />
                     <Text style={{fontWeight:'600', color:"rgba(0,0,0,0.7)"}}>
