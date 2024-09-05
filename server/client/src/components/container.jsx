@@ -10,7 +10,7 @@ export default function Container(props) {
     const [pageState, setPageState] = useState(true)
     const [ended, setEnded] = useState(false)
     let lower = 1725539400000 //set upper and lower time in ms since unix epoch https://currentmillis.com/
-    let upper = 1725561000000
+    let upper = 1725555600000
 
     useEffect(()=>{
         const fn = async()=>{
