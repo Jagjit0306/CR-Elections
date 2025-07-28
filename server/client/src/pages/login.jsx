@@ -68,6 +68,15 @@ export default function Login() {
                     })
                     // setPageState(2)
                 }
+                else if(response.status===406){ //only roll numbers 61-88 allowed
+                    toast({
+                        title: 'Invalid roll number',
+                        description: "Only roll numbers 61-88 are allowed to vote.",
+                        status: 'warning',
+                        duration: 4000,
+                        isClosable: true,
+                    })
+                }
                 else if(response.status===401){ //wrong branch
                     // setPageState(3)
                     toast({

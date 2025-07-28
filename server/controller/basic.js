@@ -100,6 +100,9 @@ async function Greet(req, res) {
     if(!req.query.rno) res.sendStatus(403)
     else {
         const studentExists = await students.findOne({roll: req.query.rno})
+        if(req.query.rno<24104061 || req.query.rno>24104088){
+             res.sendStatus(406)
+            return}
         if(!studentExists) res.sendStatus(404)
         else {
             const alreadyVoted = await voters.findOne({roll: req.query.rno})
